@@ -30,7 +30,7 @@ jobs:
           name: html-report
           path: coverage-repor2022-06-14
       - name: Override Coverage Source Path for Sonar
-        run: sed -i "s/<source>\/home\/runner\/.*<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/coverage.xml
+        run: sed -i "s/<source>\/home\/runner\/.*<\/source>/<source>\/github\/workspace<\/source>/g" coverage.xml
       - name: Upload XML report
         uses: actions/upload-artifact@v3
         with:
