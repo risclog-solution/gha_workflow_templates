@@ -29,6 +29,8 @@ jobs:
         with:
           name: html-report
           path: coverage-report
+      - name: Override Coverage Source Path for Sonar
+        run: sed -i "s/<source>\/home\/runner\/.*<\/source>/<source>\/github\/workspace<\/source>/g" coverage.xml
       - name: Upload XML report
         uses: actions/upload-artifact@v3
         with:
