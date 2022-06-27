@@ -16,6 +16,10 @@ on:
         default: "**/requirements.lock"
         required: false
         type: string
+      extra_software_to_install:
+        default: ""
+        required: false
+        type: string
       test_command:
         default: "./pytest"
         required: false
@@ -76,7 +80,7 @@ jobs:
     - name: Install needed software
       run: |
         sudo apt-get update
-        sudo apt-get -yqq install wkhtmltopdf qpdf ghostscript fonts-freefont-ttf poppler-utils libpq-dev libxml2-dev libxslt-dev python-dev
+        sudo apt-get -yqq install wkhtmltopdf qpdf ghostscript fonts-freefont-ttf poppler-utils libpq-dev libxml2-dev libxslt-dev python-dev ${{inputs.extra_software_to_install}}
     - name: Configure ImageMagick properly
       run: |
           cat > policy.xml <<EOF
