@@ -85,4 +85,4 @@ jobs:
       if: ${{ failure() }}
       run: |
         BUILD_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-        curl -H 'Content-Type: application/json' -d '{"msg": "${{ inputs.target }} deployment FAILED :warning:\n'${BUILD_URL}'"}' https://bots.keybase.io/webhookbot/vMMe-6WnHqxtw4qJgNTMdKaAAxA
+        curl -H 'Content-Type: application/json' -d '{"msg": "${{ inputs.target }} deployment FAILED :warning:\n'${BUILD_URL}'"}' https://bots.keybase.io/webhookbot/B89wKpb9MpV7sFw8bt-kOM6s6v8
