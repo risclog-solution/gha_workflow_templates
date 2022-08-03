@@ -80,6 +80,7 @@ jobs:
       run: |
         sudo mkdir -p /u01/app/claimx/log/
         sudo mkdir -p /u01/app/claimx/temp/
+        sudo mkdir -p u01/app/claimx/import/importfiles/wsgi/
         sudo chmod -R 777 /u01
     - name: Install needed software
       run: |
