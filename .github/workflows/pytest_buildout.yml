@@ -20,6 +20,10 @@ on:
         default: ""
         required: false
         type: string
+      buildout_file:
+        default: "buildout.cfg"
+        required: false
+        type: string
       debug_before_buildout:
         default: false
         required: false
@@ -133,7 +137,7 @@ jobs:
       run: |
         python${{ matrix.python-version }} -m pip install --upgrade pip
         pip install zc.buildout==2.13.8
-        cd $GITHUB_WORKSPACE && buildout
+        cd $GITHUB_WORKSPACE && buildout -c {{ inputs.buildout_file}}
     - name: Start tmux session if debugging after buildout is enabled
       uses: lhotari/action-upterm@v1
       if: ${{ inputs.debug_after_buildout }}
