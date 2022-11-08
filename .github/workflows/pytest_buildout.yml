@@ -132,7 +132,7 @@ jobs:
     - name: Install dependencies
       run: |
         python${{ matrix.python-version }} -m pip install --upgrade pip
-        pip install zc.buildout
+        pip install zc.buildout==2.13.8
         cd $GITHUB_WORKSPACE && buildout
     - name: Start tmux session if debugging after buildout is enabled
       uses: lhotari/action-upterm@v1
