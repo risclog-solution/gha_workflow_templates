@@ -19,4 +19,4 @@ jobs:
       run: |
         CHANGELOG=$(grep "Nothing changed yet." CHANGES.rst >/dev/null; echo $?)
         echo $CHANGELOG
-        echo "::set-output name=result::${CHANGELOG}"
+        echo "result=${CHANGELOG}" >> $GITHUB_OUTPUT
