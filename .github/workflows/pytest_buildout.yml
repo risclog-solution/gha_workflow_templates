@@ -142,7 +142,7 @@ jobs:
         limit-access-to-actor: true
     - name: Test with pytest
       id: tests
-      uses: zippyvision/xvfb-action@v1
+      uses: zippyvision/xvfb-action@0675b29197c0fb2b557511aaa557be29d258cdf7
       with:
           run: ${{ inputs.test_command }} --junit-xml pytest.xml
       env:
