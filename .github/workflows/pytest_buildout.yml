@@ -141,6 +141,7 @@ jobs:
         # limit ssh access to the user who triggered the workflow
         limit-access-to-actor: true
     - name: Test with pytest
+      id: tests
       uses: GabrielBB/xvfb-action@v1
       with:
           run: ${{ inputs.test_command }} --junit-xml pytest.xml
@@ -160,3 +161,9 @@ jobs:
       with:
         name: test-results
         path: pytest.xml
+    - name: Upload Test Artifacts
+      if: ${{ failure() && steps.tests.conclusion == 'failure' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-failures
+        path: "/tmp/*.html"
