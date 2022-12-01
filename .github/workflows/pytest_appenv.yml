@@ -102,7 +102,7 @@ jobs:
     - name: Install python packages
       run: ./appenv prepare
     - name: Test with pytest
-      uses: zippyvision/xvfb-action
+      uses: zippyvision/xvfb-action@v1
       with:
           run: ${{ inputs.test_command }} --junit-xml pytest.xml
       env:
