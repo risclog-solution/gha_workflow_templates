@@ -166,4 +166,6 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: test-failures
-        path: "/tmp/*.html"
+        path: |
+            "/tmp/*.html"
+            "/tmp/*.png"
