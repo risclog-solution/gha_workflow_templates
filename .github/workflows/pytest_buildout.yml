@@ -167,5 +167,5 @@ jobs:
       with:
         name: test-failures
         path: |
-            "/tmp/*.html"
-            "/tmp/*.png"
+          /tmp/*.html
+          /tmp/*.png
