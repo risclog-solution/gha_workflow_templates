@@ -169,3 +169,4 @@ jobs:
         path: |
           /tmp/source_*.html
           /tmp/screenshot_*.png
+          /tmp/selenium_browser_log_*.txt
