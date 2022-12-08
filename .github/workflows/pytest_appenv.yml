@@ -80,7 +80,7 @@ jobs:
     - name: Install needed software
       run: |
         sudo apt-get update
-        sudo apt-get -yqq install wkhtmltopdf qpdf ghostscript fonts-freefont-ttf poppler-utils libpq-dev libxml2-dev libxslt-dev python-dev ${{inputs.extra_software_to_install}}
+        sudo apt-get -yqq install wkhtmltopdf qpdf ghostscript fonts-freefont-ttf poppler-utils libpq-dev libxml2-dev libxslt-dev ${{inputs.extra_software_to_install}}
     - name: Configure ImageMagick properly
       run: |
           cat > policy.xml <<EOF
