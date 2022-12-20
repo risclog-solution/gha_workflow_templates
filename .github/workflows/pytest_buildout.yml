@@ -146,6 +146,7 @@ jobs:
       with:
           run: ${{ inputs.test_command }} --junit-xml pytest.xml
       env:
+        CI_TEST_RUN: 1
         POSTGRES_HOST: localhost
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: P0sTGrE5*Pa55W0rt!
