@@ -140,7 +140,7 @@ jobs:
     - name: Install dependencies
       run: |
         python${{ matrix.python-version }} -m pip install --upgrade pip
-        pip install zc.buildout==2.13.8
+        pip install zc.buildout
         ${{ inputs.additional_installs }}
         cd $GITHUB_WORKSPACE && buildout -c ${{ inputs.buildout_file }}
     - name: Start tmux session if debugging after buildout is enabled
