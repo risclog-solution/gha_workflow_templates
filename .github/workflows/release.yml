@@ -52,4 +52,5 @@ jobs:
         CHANGELOG="${CHANGELOG//$'\n'/:::}"
         CHANGELOG="${CHANGELOG//:::/\n}"
         echo "changelog=${CHANGELOG}" >> $GITHUB_OUTPUT
-        curl -H 'Content-Type: application/json' -d '{"msg": "new release: `${{ inputs.package_name }}` `'${VERSION}'`:\n\nCHANGELOG: https://github.com/risclog-solution/${{ inputs.package_name }}/blob/'${VERSION}'/CHANGES.rst\n'${CHANGELOG}'"}' https://bots.keybase.io/webhookbot/KheIE65MgRKhVG6yp3fo_IdEof8
+        echo '{"msg": "new release: `risclog.clxapi` `'${VERSION}'`:\n\nCHANGELOG: https://github.com/risclog-solution/risclog.clxapi/blob/'${VERSION}'/CHANGES.rst\n'${CHANGELOG}'"}' >> payload.json
+        curl -H 'Content-Type: application/json' -d '@payload.json' https://bots.keybase.io/webhookbot/KheIE65MgRKhVG6yp3fo_IdEof8
