@@ -48,9 +48,6 @@ jobs:
         END=$(expr $START + $END)
         END=$(expr $END - 4)
         CHANGELOG=$(head -n $END CHANGES.rst | tail -n $(($END-$START+1)))
-        CHANGELOG="${CHANGELOG//$'\r'/}"
-        CHANGELOG="${CHANGELOG//$'\n'/:::}"
-        CHANGELOG="${CHANGELOG//:::/\n}"
         echo "changelog=${CHANGELOG}" >> $GITHUB_OUTPUT
-        echo '{"msg": "new release: `risclog.clxapi` `'${VERSION}'`:\n\nCHANGELOG: https://github.com/risclog-solution/risclog.clxapi/blob/'${VERSION}'/CHANGES.rst\n'${CHANGELOG}'"}' >> payload.json
+        echo '{"msg": "new release: `${{ inputs.package_name }}` `'${VERSION}'`:\n\nCHANGELOG: https://github.com/risclog-solution/${{ inputs.package_name }}/blob/'${VERSION}'/CHANGES.rst\n\n'${CHANGELOG}'"}' >> payload.json
         curl -H 'Content-Type: application/json' -d '@payload.json' https://bots.keybase.io/webhookbot/KheIE65MgRKhVG6yp3fo_IdEof8
