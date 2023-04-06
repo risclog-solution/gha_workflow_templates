@@ -33,6 +33,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install zest.releaser[recommended]
+        pip install risclog.zestreleaser.notify
         echo "$pypirc" > ~/.pypirc
         fullrelease --no-input
       env:
@@ -42,11 +43,3 @@ jobs:
       run: |
         VERSION=$(git tag | tail -1)
         echo "version=${VERSION}" >> $GITHUB_OUTPUT
-        START=$(grep -n "^$VERSION (" CHANGES.rst | cut --delimiter=":" --fields=1)
-        START=$(expr $START + 2)
-        END=$(tail -n +$START CHANGES.rst  | grep -n "^============" -m 1 | cut --delimiter=":" --fields=1)
-        END=$(expr $START + $END)
-        END=$(expr $END - 4)
-        CHANGELOG="$(head -n $END CHANGES.rst | tail -n $(($END-$START+1)))"
-        echo '{"msg": "new release: `${{ inputs.package_name }}` `'${VERSION}'`:\n\nCHANGELOG: https://github.com/risclog-solution/${{ inputs.package_name }}/blob/'${VERSION}'/CHANGES.rst\n\n'${CHANGELOG//$'\n'/\\n}'"}' >> payload.json
-        curl -H 'Content-Type: application/json' -d '@payload.json' https://bots.keybase.io/webhookbot/KheIE65MgRKhVG6yp3fo_IdEof8
