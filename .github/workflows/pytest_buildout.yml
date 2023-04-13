@@ -87,6 +87,7 @@ jobs:
     - name: Add claimx directories
       run: |
         sudo mkdir -p /u01/app/claimx/log/
+        sudo mkdir -p /u01/app/claimx/job/
         sudo mkdir -p /u01/app/claimx/temp/
         sudo mkdir -p /u01/app/claimx/import/importfiles/wsgi/
         sudo chmod -R 777 /u01
