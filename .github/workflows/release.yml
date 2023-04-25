@@ -9,7 +9,7 @@ on:
       branch_protection:
         required: false
         type: string
-        default: disabled
+        default: "disabled"
     outputs:
       version:
           description: The version of the released package
@@ -28,12 +28,12 @@ jobs:
     steps:
     - name: Checkout repo with authenticated git commands
       uses: actions/checkout@v3
-      if: github.event.inputs.branch_protection == 'enabled'
+      if: inputs.branch_protection == 'enabled'
       with:
         token: ${{ secrets.BUILD_SVC_PAT }}
     - name: Checkout repo
       uses: actions/checkout@v3
-      if: github.event.inputs.branch_protection == 'disabled'
+      if: inputs.branch_protection == 'disabled'
     - name: Prepare git client
       run: |
         git config --local user.email "info@risclog.de"
