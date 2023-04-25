@@ -6,6 +6,10 @@ on:
       package_name:
         required: true
         type: string
+      branch_protection:
+        required: false
+        type: string
+        default: "disabled"
     outputs:
       version:
           description: The version of the released package
@@ -13,6 +17,8 @@ on:
     secrets:
       PYPIRC:
         required: true
+      BUILD_SVC_PAT:
+        required: false
 
 jobs:
   release:
@@ -20,7 +26,14 @@ jobs:
     outputs:
       version: ${{ steps.pin.outputs.version }}
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repo with authenticated git commands
+      uses: actions/checkout@v3
+      if: ${{ github.event.inputs.branch_protection == "enabled" }}
+      with:
+        token: ${{ secrets.BUILD_SVC_PAT }}
+    - name: Checkout repo
+      uses: actions/checkout@v3
+      if: ${{ github.event.inputs.branch_protection == "disabled" }}
     - name: Prepare git client
       run: |
         git config --local user.email "info@risclog.de"
