@@ -72,10 +72,10 @@ jobs:
     - name: Install dependencies
       run: |
         cd $GITHUB_WORKSPACE
-        python${{ matrix.python-version }} -m pip install --upgrade pip
-        pip install zc.buildout==2.13.8
+        virtualenv --python=python${{ matrix.python-version }} venv
+        venv/bin/pip install zc.buildout==2.13.8
         ${{ inputs.additional_installs }}
-        cd $GITHUB_WORKSPACE && buildout -c ${{ inputs.buildout_file }}
+        venv/bin/buildout -c ${{ inputs.buildout_file }}
     - name: Test with pytest
       id: tests
       run: |
