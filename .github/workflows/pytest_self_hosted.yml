@@ -73,6 +73,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE
         virtualenv --python=python${{ matrix.python-version }} venv
+        venv/bin/pip install setuptools==44.0.0
         venv/bin/pip install zc.buildout==2.13.8
         ${{ inputs.additional_installs }}
         venv/bin/buildout -c ${{ inputs.buildout_file }}
