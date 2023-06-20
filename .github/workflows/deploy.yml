@@ -36,8 +36,38 @@ jobs:
         mkdir -p ~/.ssh
         chmod 0700 ~/.ssh
         rm -rf ~/.ssh/known_hosts
-        ssh-keyscan fcio.net >> ~/.ssh/known_hosts
-        ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+        ssh-keyscan clxstagc00.fe.rzob.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+        ssh-keyscan kravag00.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravag01.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravag02.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravag05.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravag06.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravag09.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravag10.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravag11.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagstag00.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagstag01.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagstag02.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagstag05.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagstag06.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagstag09.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagstag10.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagstag11.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagtest00.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagtest01.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagtest02.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagtest05.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagtest06.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagtest09.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagtest10.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagtest11.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagdemo50.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagdemo51.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan kravagdemo60.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan ruvti00.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan ruvtistaging00.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan ruvtitesting00.fcio.net >> ~/.ssh/known_hosts
         tee ~/.ssh/config << END
         ForwardAgent yes
         ServerAliveInterval 15
