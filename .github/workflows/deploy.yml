@@ -39,20 +39,24 @@ jobs:
         ssh-keyscan fcio.net >> ~/.ssh/known_hosts
         ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
         tee ~/.ssh/config << END
-        Host *
-            ForwardAgent yes
-            ServerAliveInterval 15
-            strictHostKeyChecking no
+        ForwardAgent yes
+        ServerAliveInterval 15
+        ServerAliveCountMax 3
 
         Host flyingcircus-jump-host
             HostName clxstagc00.fe.rzob.fcio.net
+            IdentityFile ~/.ssh/identity
             User sweh
-            IdentityFile /run/github-runner/kravagtest50/.ssh/identity
 
         Host *.fcio.net
             User sweh
-            IdentityFile /run/github-runner/kravagtest50/.ssh/identity
-            ProxyJump flyingcircus-jump-host
+            IdentityFile ~/.ssh/identity
+            ProxyCommand ssh flyingcircus-jump-host nc -w 120 %h %p
+
+        Host kravag*
+            User sweh
+            IdentityFile ~/.ssh/identity
+            ProxyCommand ssh flyingcircus-jump-host nc -w 120 %h %p
         END
         chmod 0700 ~/.ssh/config
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/identity
