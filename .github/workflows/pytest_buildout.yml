@@ -44,7 +44,6 @@ env:
 jobs:
   test:
     runs-on: ubuntu-20.04
-    container: coatldev/six:latest
     timeout-minutes: ${{ inputs.timeout_minutes }}
     services:
       postgres:
@@ -67,6 +66,12 @@ jobs:
         python-version: ${{fromJson(inputs.versions)}}
     steps:
     - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: MatteoH2O1999/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+        allow-build: info
+        cache-build: true
     - name: Setup PostgreSQL environment
       run: |
         echo "localhost:5432:*:postgres:P0sTGrE5*Pa55W0rt!" > ~/.pgpass
