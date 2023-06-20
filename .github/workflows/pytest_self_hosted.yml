@@ -52,6 +52,12 @@ jobs:
     steps:
     - uses: AutoModality/action-clean@v1
     - uses: actions/checkout@v3
+    - name: Clean up /tmp dir
+      run: |
+        rm /tmp/source_*
+        rm /tmp/screenshot_*
+        rm /tmp/selenium_browser_log_*
+        rm /tmp/risclog_test_artifact_*
     - name: Add claimx directories
       run: |
         rm -rf /u01/app/*
