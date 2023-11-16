@@ -23,7 +23,7 @@ jobs:
   pin:
     runs-on: ubuntu-latest
     steps:
-    - uses: webfactory/ssh-agent@latest
+    - uses: webfactory/ssh-agent@v0.8.0
       with:
         ssh-private-key: ${{ secrets.CLONE_KEY }}
     - name: Checkout ${{ inputs.repository }}
