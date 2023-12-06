@@ -102,6 +102,7 @@ jobs:
     - name: Install python packages
       run: ./appenv prepare
     - name: Test with pytest
+      id: tests
       uses: zippyvision/xvfb-action@0675b29197c0fb2b557511aaa557be29d258cdf7
       with:
           run: ${{ inputs.test_command }} --junit-xml pytest.xml
@@ -122,3 +123,10 @@ jobs:
       with:
         name: test-results
         path: pytest.xml
+    - name: Upload Test Artifacts
+      if: ${{ failure() && steps.tests.conclusion == 'failure' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-failures
+        path: |
+          /tmp/gocept_selenium_screenshot_*.png
