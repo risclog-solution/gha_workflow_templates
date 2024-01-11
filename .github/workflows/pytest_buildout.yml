@@ -168,19 +168,19 @@ jobs:
         POSTGRES_PASSWORD: P0sTGrE5*Pa55W0rt!
         DISPLAY: :0
     - name: Upload coverage RAW data
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-data
         path: ".coverage*"
     - name: Upload Test Results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-results
         path: pytest.xml
     - name: Upload Test Artifacts
       if: ${{ failure() && steps.tests.conclusion == 'failure' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-failures
         path: |
