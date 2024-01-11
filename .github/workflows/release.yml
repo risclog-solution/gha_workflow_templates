@@ -27,12 +27,12 @@ jobs:
       version: ${{ steps.pin.outputs.version }}
     steps:
     - name: Checkout repo with authenticated git commands
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       if: inputs.branch_protection == 'enabled'
       with:
         token: ${{ secrets.BUILD_SVC_PAT }}
     - name: Checkout repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       if: inputs.branch_protection == 'disabled'
     - name: Prepare git client
       run: |
