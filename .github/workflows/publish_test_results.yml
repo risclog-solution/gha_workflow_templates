@@ -17,8 +17,8 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: test-results
-
+          name: test-results-*
+          merge-multiple: true
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:

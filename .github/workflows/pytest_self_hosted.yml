@@ -96,19 +96,19 @@ jobs:
     - name: Upload coverage RAW data
       uses: actions/upload-artifact@v4
       with:
-        name: coverage-data
+        name: coverage-data-${{ matrix.python-version }}
         path: ".coverage*"
     - name: Upload Test Results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-results
+        name: test-results-${{ matrix.python-version }}
         path: pytest.xml
     - name: Upload Test Artifacts
       if: ${{ failure() && steps.tests.conclusion == 'failure' }}
       uses: actions/upload-artifact@v4
       with:
-        name: test-failures
+        name: test-failures-${{ matrix.python-version }}
         path: |
           /tmp/source_*.html
           /tmp/screenshot_*.png
