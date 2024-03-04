@@ -111,12 +111,10 @@ jobs:
     - name: Deploy to ${{ inputs.target }}
       run: |
         BUILD_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-        curl -H 'Content-Type: application/json' -d '{"msg": "${{ inputs.target }} deployment started :ship:\n'${BUILD_URL}'"}' https://bots.keybase.io/webhookbot/B89wKpb9MpV7sFw8bt-kOM6s6v8
         curl -H 'Content-Type: application/json' -d '{"text": "${{ inputs.target }} deployment started 🚢\n'${BUILD_URL}'"}' https://chat.risclog.com/webhook/745c0604-6456-4eba-97e5-df9a36c7ae23
         ./batou deploy ${{ inputs.target }}
     - name: Report deployment failure
       if: ${{ failure() }}
       run: |
         BUILD_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-        curl -H 'Content-Type: application/json' -d '{"msg": "${{ inputs.target }} deployment FAILED :warning:\n'${BUILD_URL}'"}' https://bots.keybase.io/webhookbot/B89wKpb9MpV7sFw8bt-kOM6s6v8
         curl -H 'Content-Type: application/json' -d '{"text": "${{ inputs.target }} deployment FAILED ⚠️\n'${BUILD_URL}'"}' https://chat.risclog.com/webhook/745c0604-6456-4eba-97e5-df9a36c7ae23
