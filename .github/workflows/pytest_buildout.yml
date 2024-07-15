@@ -67,7 +67,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      uses: MatteoH2O1999/setup-python@v1
+      uses: MatteoH2O1999/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
         allow-build: info
