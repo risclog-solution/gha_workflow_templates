@@ -36,7 +36,7 @@ jobs:
         mkdir -p ~/.ssh
         chmod 0700 ~/.ssh
         rm -rf ~/.ssh/known_hosts
-        ssh-keyscan clxstagc00.fe.rzob.fcio.net >> ~/.ssh/known_hosts
+        ssh-keyscan dev.risclog.net >> ~/.ssh/known_hosts
         ssh-keyscan github.com >> ~/.ssh/known_hosts
         ssh-keyscan kravag00.fcio.net >> ~/.ssh/known_hosts
         ssh-keyscan kravag01.fcio.net >> ~/.ssh/known_hosts
@@ -72,7 +72,7 @@ jobs:
         ServerAliveCountMax 3
 
         Host flyingcircus-jump-host
-            HostName clxstagc00.fe.rzob.fcio.net
+            HostName dev.risclog.net
             IdentityFile ~/.ssh/identity
             User sweh
 
