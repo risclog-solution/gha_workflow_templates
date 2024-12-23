@@ -28,7 +28,7 @@ jobs:
     - name: Prepare environment for python
       if: ${{ inputs.project_type == 'python'}}
       run: |
-        echo "COVERAGE_PATH=-Dsonar.python.coverage.reportPaths=./coverage.xml" >> $GITHUB_ENV
+        echo "COVERAGE_PATH=-Dsonar.python.coverage.reportPaths=/github/workspace/coverage-xml" >> $GITHUB_ENV
         echo "EXCLUSIONS=-Dsonar.exclusions=**/*.js,**/*.css,**/*.scss,**/*.html,**/versions/**,**VUVM20**" >> $GITHUB_ENV
     - name: Prepare environment for javascript
       if: ${{ inputs.project_type == 'javascript'}}
@@ -53,6 +53,7 @@ jobs:
     - name: SonarQube Scan for PullRequests
       if: ${{ github.event.number }}
       uses: sonarsource/sonarqube-scan-action@v4.2.1
+
       env:
         SONAR_TOKEN: ${{ secrets.SONARQUBETOKEN }}
         SONAR_HOST_URL: https://sonarqube.risclog.fcio.net
