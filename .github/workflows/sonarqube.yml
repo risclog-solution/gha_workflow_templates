@@ -22,8 +22,7 @@ jobs:
     - name: Download Artifacts
       uses: actions/download-artifact@v4
       with:
-        pattern: coverage-xml-*
-        merge-multiple: true
+        pattern: coverage-xml
     - name: Prepare repository url
       run: echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
     - name: Prepare environment for python
