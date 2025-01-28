@@ -24,6 +24,9 @@ on:
         default: "./pytest"
         required: false
         type: string
+    secrets:
+      PIPCONF:
+        required: true
 
 env:
   FORCE_COLOR: "1"  # Make tools pretty.
@@ -101,7 +104,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-appenv-
     - name: Install python packages
-      run: ./appenv prepare
+      run: |
+        mkdir -p ~/.config/pip/
+        echo "$pipconf" > ~/.config/pip/pip.conf
+        ./appenv prepare
     - name: Test with pytest
       id: tests
       uses: zippyvision/xvfb-action@0675b29197c0fb2b557511aaa557be29d258cdf7
