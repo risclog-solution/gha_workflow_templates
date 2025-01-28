@@ -108,6 +108,8 @@ jobs:
         mkdir -p ~/.config/pip/
         echo "$pipconf" > ~/.config/pip/pip.conf
         ./appenv prepare
+      env:
+        pipconf: ${{ secrets.PIPCONF }}
     - name: Test with pytest
       id: tests
       uses: zippyvision/xvfb-action@0675b29197c0fb2b557511aaa557be29d258cdf7
