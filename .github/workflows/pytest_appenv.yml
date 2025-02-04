@@ -26,7 +26,7 @@ on:
         type: string
     secrets:
       PIPCONF:
-        required: true
+        required: false
 
 env:
   FORCE_COLOR: "1"  # Make tools pretty.
