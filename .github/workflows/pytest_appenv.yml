@@ -140,3 +140,4 @@ jobs:
         name: test-failures-${{ matrix.python-version }}
         path: |
           /tmp/gocept_selenium_screenshot_*.png
+          /tmp/*.pdf
