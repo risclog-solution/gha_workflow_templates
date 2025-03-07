@@ -36,6 +36,8 @@ jobs:
         mkdir -p ~/.ssh
         chmod 0700 ~/.ssh
         rm -rf ~/.ssh/known_hosts
+    - name: Setup SSH access - Step 2
+      run: |
         ssh-keyscan dev.risclog.net >> ~/.ssh/known_hosts
         ssh-keyscan github.com >> ~/.ssh/known_hosts
         ssh-keyscan kravag00.fcio.net >> ~/.ssh/known_hosts
@@ -65,7 +67,7 @@ jobs:
         ssh-keyscan kravagdemo60.fcio.net >> ~/.ssh/known_hosts
         ssh-keyscan ruvti00.fcio.net >> ~/.ssh/known_hosts
         ssh-keyscan ruvtistaging00.fcio.net >> ~/.ssh/known_hosts
-    - name: Setup SSH access - Step 2
+    - name: Setup SSH access - Step 3
       run: |
         tee ~/.ssh/config << END
         ForwardAgent yes
@@ -87,7 +89,7 @@ jobs:
             IdentityFile ~/.ssh/identity
             ProxyCommand ssh flyingcircus-jump-host nc -w 120 %h %p
         END
-    - name: Setup SSH access - Step 3
+    - name: Setup SSH access - Step 4
       run: |
         chmod 0700 ~/.ssh/config
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/identity
