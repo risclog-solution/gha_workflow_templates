@@ -51,14 +51,15 @@ jobs:
         Host *.fcio.net
             User sweh
             IdentityFile ~/.ssh/identity
-            StrictHostKeyChecking no
             ProxyCommand ssh flyingcircus-jump-host nc -w 120 %h %p
 
         Host kravag*
             User sweh
             IdentityFile ~/.ssh/identity
-            StrictHostKeyChecking no
             ProxyCommand ssh flyingcircus-jump-host nc -w 120 %h %p
+
+        Host *
+            StrictHostKeyChecking no
         END
     - name: Setup SSH access - Step 4
       run: |
