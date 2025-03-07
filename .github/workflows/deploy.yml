@@ -31,7 +31,7 @@ jobs:
       run: |
           rm -rf $GITHUB_WORKSPACE
           mkdir -p $GITHUB_WORKSPACE
-    - name: Setup SSH access
+    - name: Setup SSH access - Step 1
       run: |
         mkdir -p ~/.ssh
         chmod 0700 ~/.ssh
@@ -65,6 +65,8 @@ jobs:
         ssh-keyscan kravagdemo60.fcio.net >> ~/.ssh/known_hosts
         ssh-keyscan ruvti00.fcio.net >> ~/.ssh/known_hosts
         ssh-keyscan ruvtistaging00.fcio.net >> ~/.ssh/known_hosts
+    - name: Setup SSH access - Step 2
+      run: |
         tee ~/.ssh/config << END
         ForwardAgent yes
         ServerAliveInterval 15
@@ -85,6 +87,8 @@ jobs:
             IdentityFile ~/.ssh/identity
             ProxyCommand ssh flyingcircus-jump-host nc -w 120 %h %p
         END
+    - name: Setup SSH access - Step 3
+      run: |
         chmod 0700 ~/.ssh/config
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/identity
         echo "${{ secrets.CLONE_KEY }}" > ~/.ssh/id_rsa
