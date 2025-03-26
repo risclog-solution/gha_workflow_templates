@@ -1,0 +1,78 @@
+name: Test
+
+on:
+  workflow_call:
+    inputs:
+      versions:
+        default: >-
+            ["3.9",]
+        required: false
+        type: string
+      timeout_minutes:
+        default: 10
+        required: false
+        type: number
+      cache_hashfile:
+        default: "**/requirements.lock"
+        required: false
+        type: string
+      extra_software_to_install:
+        default: ""
+        required: false
+        type: string
+      test_command:
+        default: "./pytest"
+        required: false
+        type: string
+    secrets:
+      PIPCONF:
+        required: false
+
+env:
+  FORCE_COLOR: "1"  # Make tools pretty.
+  PYTHONUNBUFFERED: 1
+
+jobs:
+  test:
+    runs-on: self-hosted
+    timeout-minutes: ${{ inputs.timeout_minutes }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ${{fromJson(inputs.versions)}}
+    steps:
+    - uses: AutoModality/action-clean@v1
+    - name: Cleanup tep dir
+      run: rm -rf /tmp/gocept_selenium_screenshot*
+    - uses: actions/checkout@v4
+    - name: Install python packages
+      run: |
+        mkdir -p ~/.config/pip/
+        echo "${{ secrets.PIPCONF }}" > ~/.config/pip/pip.conf
+        ./appenv prepare
+    - name: Test with pytest
+      id: tests
+      run: ./pytest --junit-xml pytest.xml
+      env:
+        CI_TEST_RUN: 1
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: P0sTGrE5*Pa55W0rt!
+    - name: Upload coverage RAW data
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-data-3.10
+        include-hidden-files: true
+        path: ".coverage*"
+    - name: Upload Test Results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-3.10
+        path: pytest.xml
+    - name: Upload Test Artifacts
+      if: ${{ failure() && steps.tests.conclusion == 'failure' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-failures-3.10
+        path: |
+          /tmp/gocept_selenium_screenshot*.png
