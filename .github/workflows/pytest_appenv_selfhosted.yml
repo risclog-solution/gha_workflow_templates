@@ -3,11 +3,6 @@ name: Test
 on:
   workflow_call:
     inputs:
-      versions:
-        default: >-
-            ["3.9",]
-        required: false
-        type: string
       timeout_minutes:
         default: 10
         required: false
@@ -31,18 +26,16 @@ on:
 env:
   FORCE_COLOR: "1"  # Make tools pretty.
   PYTHONUNBUFFERED: 1
+  GOCEPT_WEBDRIVER_BROWSER: firefox
+  GOCEPT_SELENIUM_HEADLESS: true
 
 jobs:
   test:
     runs-on: self-hosted
     timeout-minutes: ${{ inputs.timeout_minutes }}
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ${{fromJson(inputs.versions)}}
     steps:
     - uses: AutoModality/action-clean@v1
-    - name: Cleanup tep dir
+    - name: Cleanup temp dir
       run: rm -rf /tmp/gocept_selenium_screenshot*
     - uses: actions/checkout@v4
     - name: Install python packages
@@ -60,19 +53,19 @@ jobs:
     - name: Upload coverage RAW data
       uses: actions/upload-artifact@v4
       with:
-        name: coverage-data-3.10
+        name: coverage-data-${{ matrix.python-version }}
         include-hidden-files: true
         path: ".coverage*"
     - name: Upload Test Results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-results-3.10
+        name: test-results-${{ matrix.python-version }}
         path: pytest.xml
     - name: Upload Test Artifacts
       if: ${{ failure() && steps.tests.conclusion == 'failure' }}
       uses: actions/upload-artifact@v4
       with:
-        name: test-failures-3.10
+        name: test-failures-${{ matrix.python-version }}
         path: |
           /tmp/gocept_selenium_screenshot*.png
