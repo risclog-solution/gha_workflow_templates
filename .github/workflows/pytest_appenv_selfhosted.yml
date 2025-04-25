@@ -43,6 +43,11 @@ jobs:
         mkdir -p ~/.config/pip/
         echo "${{ secrets.PIPCONF }}" > ~/.config/pip/pip.conf
         ./appenv prepare
+    - name: Setup PostgreSQL environment
+      run: |
+        echo "localhost:5432:*:postgres:P0sTGrE5*Pa55W0rt!" > ~/.pgpass
+        echo "localhost:5432:*:github-runner-${{ runner.name }}:R4nneR*Pa55W0rt!" >> ~/.pgpass
+        chmod 0600 ~/.pgpass
     - name: Test with pytest
       id: tests
       run: ./pytest --junit-xml pytest.xml
