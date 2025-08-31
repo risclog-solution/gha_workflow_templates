@@ -52,7 +52,7 @@ jobs:
           ${{env.EXCLUSIONS}}
     - name: SonarQube Scan for PullRequests
       if: ${{ github.event.number }}
-      uses: sonarsource/sonarqube-scan-action@v4.2.1
+      uses: sonarsource/sonarqube-scan-action@v5.3.1
 
       env:
         SONAR_TOKEN: ${{ secrets.SONARQUBETOKEN }}
