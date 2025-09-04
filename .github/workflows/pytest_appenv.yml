@@ -119,6 +119,7 @@ jobs:
         CI_TEST_RUN: 1
         POSTGRES_HOST: localhost
         POSTGRES_USER: postgres
+        POSTGRES_PASS: P0sTGrE5*Pa55W0rt!
         POSTGRES_PASSWORD: P0sTGrE5*Pa55W0rt!
         DISPLAY: :0
     - name: Upload coverage RAW data
