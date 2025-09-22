@@ -41,7 +41,7 @@ jobs:
     - name: Install zest.releaser
       run: |
         python -m pip install --upgrade pip
-        pip install "zest.releaser[recommended]<8.0.0"
+        pip install "zest.releaser[recommended]==9.1.1"
         pip install risclog.zestreleaser.notify
         echo "$pypirc" > ~/.pypirc
         fullrelease --no-input
