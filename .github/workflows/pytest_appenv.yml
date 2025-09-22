@@ -76,6 +76,8 @@ jobs:
         createuser -h localhost -U postgres --login brokeruser
         createuser -h localhost -U postgres --login backup
         createuser -h localhost -U postgres --login aamweb
+        createuser -h localhost -U postgres --login admin_role
+        createuser -h localhost -U postgres --login admin_user
     - name: Add claimx directories
       run: |
         sudo mkdir -p /u01/app/claimx/log/
