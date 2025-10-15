@@ -40,6 +40,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Install python packages
       run: |
+        echo "/run/github-runner/${{ runner.name }}/.local/bin" >> $GITHUB_PATH
         mkdir -p ~/.config/pip/
         echo "${{ secrets.PIPCONF }}" > ~/.config/pip/pip.conf
         pipx install "virtualenv<20.0.0"
@@ -51,7 +52,9 @@ jobs:
         chmod 0600 ~/.pgpass
     - name: Test with pytest
       id: tests
-      run: ./pytest --junit-xml pytest.xml
+      run: |
+        echo "/run/github-runner/${{ runner.name }}/.local/bin" >> $GITHUB_PATH
+        ./pytest --junit-xml pytest.xml
       env:
         CI_TEST_RUN: 1
         POSTGRES_USER: postgres
