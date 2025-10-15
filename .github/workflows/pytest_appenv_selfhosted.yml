@@ -50,7 +50,9 @@ jobs:
         chmod 0600 ~/.pgpass
     - name: Test with pytest
       id: tests
-      run: ./pytest --junit-xml pytest.xml
+      run: |
+          pipx install "virtualenv<20.0.0"
+          ./pytest --junit-xml pytest.xml
       env:
         CI_TEST_RUN: 1
         POSTGRES_USER: postgres
