@@ -22,7 +22,9 @@ jobs:
           merge-multiple: true
       - name: Combine coverage and fail if it's <${{ inputs.min_coverage }}%.
         run: |
-          python -m coverage combine
+          if ls .coverage.* 1>/dev/null 2>&1; then
+            python -m coverage combine
+          fi
           python -m coverage html --skip-covered --skip-empty
           python -m coverage xml
           python -m coverage report --fail-under=${{ inputs.min_coverage }}

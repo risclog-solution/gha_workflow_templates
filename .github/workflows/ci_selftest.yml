@@ -13,6 +13,8 @@ jobs:
         with:
           python-version: "3.11"
       - name: Generate minimal coverage data
+        env:
+          COVERAGE_FILE: .coverage.selftest
         run: |
           python -m pip install --upgrade coverage[toml]
           cat > sample.py <<'PY'
@@ -22,7 +24,7 @@ jobs:
           if __name__ == "__main__":
               print(add(1, 2))
           PY
-          python -m coverage run sample.py
+          COVERAGE_FILE=.coverage.selftest python -m coverage run sample.py
       - name: Upload coverage RAW data
         uses: actions/upload-artifact@v4
         with:
