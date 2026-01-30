@@ -60,19 +60,19 @@ jobs:
     - name: Upload coverage RAW data
       uses: actions/upload-artifact@v4
       with:
-        name: coverage-data-${{ matrix.python-version }}
+        name: coverage-data-${{ runner.name }}
         include-hidden-files: true
         path: ".coverage*"
     - name: Upload Test Results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-results-${{ matrix.python-version }}
+        name: test-results-${{ runner.name }}
         path: pytest.xml
     - name: Upload Test Artifacts
       if: ${{ failure() && steps.tests.conclusion == 'failure' }}
       uses: actions/upload-artifact@v4
       with:
-        name: test-failures-${{ matrix.python-version }}
+        name: test-failures-${{ runner.name }}
         path: |
           /tmp/gocept_selenium_screenshot*.png
