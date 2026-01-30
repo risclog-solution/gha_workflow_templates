@@ -18,7 +18,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Generate minimal coverage data
         env:
-          COVERAGE_FILE: .coverage.selftest
+          COVERAGE_FILE: .coverage.selftest.${{ matrix.python-version }}
         run: |
           python -m pip install --upgrade coverage[toml]
           python -m coverage run .github/fixtures/coverage_sample.py
