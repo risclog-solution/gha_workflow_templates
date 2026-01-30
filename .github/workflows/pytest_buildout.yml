@@ -165,6 +165,7 @@ jobs:
       with:
           run: ${{ inputs.test_command }} --junit-xml pytest.xml
       env:
+        COVERAGE_FILE: .coverage.${{ matrix.python-version }}
         CI_TEST_RUN: 1
         POSTGRES_HOST: localhost
         POSTGRES_USER: postgres

@@ -54,6 +54,7 @@ jobs:
       run: |
         ./pytest --junit-xml pytest.xml
       env:
+        COVERAGE_FILE: .coverage.${{ runner.name }}
         CI_TEST_RUN: 1
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: P0sTGrE5*Pa55W0rt!
