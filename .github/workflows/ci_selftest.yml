@@ -23,14 +23,19 @@ jobs:
           print("1" if sys.version_info[:2] <= (3, 10) else "0")
           PY
           )
-          expected=0
-          if [ "${{ matrix.python-version }}" = "3.10" ]; then
-            expected=1
-          fi
+          expected=$(python - <<'PY'
+          import os
+          v = os.environ["MATRIX_PY"]
+          maj, min_ = (int(x) for x in v.split(".")[:2])
+          print("1" if (maj, min_) <= (3, 10) else "0")
+          PY
+          )
           if [ "$py_le_310" != "$expected" ]; then
             echo "update-lockfile condition mismatch: python=${{ matrix.python-version }} computed=${py_le_310} expected=${expected}"
             exit 1
           fi
+        env:
+          MATRIX_PY: ${{ matrix.python-version }}
       - name: Generate minimal coverage data
         env:
           COVERAGE_FILE: .coverage.selftest.${{ matrix.python-version }}
