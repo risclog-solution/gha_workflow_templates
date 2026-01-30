@@ -1,0 +1,36 @@
+name: Template Self-Test
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  generate-coverage-data:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Generate minimal coverage data
+        env:
+          COVERAGE_FILE: .coverage.selftest.${{ matrix.python-version }}
+        run: |
+          python -m pip install --upgrade coverage[toml]
+          python -m coverage run .github/fixtures/coverage_sample.py
+      - name: Upload coverage RAW data
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-data-selftest-${{ matrix.python-version }}
+          include-hidden-files: true
+          path: ".coverage*"
+
+  coverage:
+    needs: generate-coverage-data
+    uses: ./.github/workflows/coverage.yml
+    with:
+      min_coverage: 0

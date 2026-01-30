@@ -148,8 +148,11 @@ jobs:
       run: |
         python${{ matrix.python-version }} -m pip install --upgrade pip
         pip install zc.buildout==2.13.8
-        ${{ inputs.additional_installs }}
-        cd $GITHUB_WORKSPACE && buildout -c ${{ inputs.buildout_file }}
+    - name: Additional installs
+      if: ${{ inputs.additional_installs }}
+      run: ${{ inputs.additional_installs }}
+    - name: Run buildout
+      run: cd "$GITHUB_WORKSPACE" && buildout -c "${{ inputs.buildout_file }}"
     - name: Start tmux session if debugging after buildout is enabled
       uses: lhotari/action-upterm@v1
       if: ${{ inputs.debug_after_buildout }}
@@ -162,6 +165,7 @@ jobs:
       with:
           run: ${{ inputs.test_command }} --junit-xml pytest.xml
       env:
+        COVERAGE_FILE: .coverage.${{ matrix.python-version }}
         CI_TEST_RUN: 1
         POSTGRES_HOST: localhost
         POSTGRES_USER: postgres

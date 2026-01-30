@@ -29,8 +29,8 @@ jobs:
     steps:
     - name: Clean up
       run: |
-          rm -rf $GITHUB_WORKSPACE
-          mkdir -p $GITHUB_WORKSPACE
+          rm -rf "$GITHUB_WORKSPACE"
+          mkdir -p "$GITHUB_WORKSPACE"
     - name: Setup SSH access - Step 1
       run: |
         mkdir -p ~/.ssh
@@ -68,17 +68,17 @@ jobs:
         echo "${{ secrets.CLONE_KEY }}" > ~/.ssh/id_rsa
     - name: Checkout github.com:risclog-solution/${{ inputs.repository }}.git
       run: |
-        cd $GITHUB_WORKSPACE
+        cd "$GITHUB_WORKSPACE"
         git config --global user.email "info@risclog.de"
         git config --global user.name "risclog"
         git config --global core.sshCommand "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -F /dev/null"
         git clone --verbose git@github.com:risclog-solution/${{ inputs.repository }}.git .
     - name: Update branch ${{ inputs.target }}
       run: |
-        cd $GITHUB_WORKSPACE
-        git checkout ${{ inputs.target }}
-        source="master" && [[ ${{ inputs.target }} == "production" ]]  && source="staging"
-        git merge origin/$source
+        cd "$GITHUB_WORKSPACE"
+        git checkout "${{ inputs.target }}"
+        source="master" && [[ "${{ inputs.target }}" == "production" ]] && source="staging"
+        git merge "origin/$source"
         git push
     - name: Setup GPG
       run: |
@@ -88,10 +88,12 @@ jobs:
     - name: Deploy to ${{ inputs.target }}
       run: |
         BUILD_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-        curl -H 'Content-Type: application/json' -d '{"text": "${{ inputs.target }} deployment started 🚢\n'${BUILD_URL}'"}' https://chat.risclog.com/webhook/745c0604-6456-4eba-97e5-df9a36c7ae23
-        ./batou deploy ${{ inputs.target }}
+        payload=$(printf '{"text": "%s deployment started 🚢\\n%s"}' "${{ inputs.target }}" "$BUILD_URL")
+        curl -H 'Content-Type: application/json' -d "$payload" https://chat.risclog.com/webhook/745c0604-6456-4eba-97e5-df9a36c7ae23
+        ./batou deploy "${{ inputs.target }}"
     - name: Report deployment failure
       if: ${{ failure() }}
       run: |
         BUILD_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-        curl -H 'Content-Type: application/json' -d '{"text": "${{ inputs.target }} deployment FAILED ⚠️\n'${BUILD_URL}'"}' https://chat.risclog.com/webhook/745c0604-6456-4eba-97e5-df9a36c7ae23
+        payload=$(printf '{"text": "%s deployment FAILED ⚠️\\n%s"}' "${{ inputs.target }}" "$BUILD_URL")
+        curl -H 'Content-Type: application/json' -d "$payload" https://chat.risclog.com/webhook/745c0604-6456-4eba-97e5-df9a36c7ae23
