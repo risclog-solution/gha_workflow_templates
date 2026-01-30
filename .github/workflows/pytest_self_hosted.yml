@@ -72,17 +72,19 @@ jobs:
         chmod 0600 ~/.pgpass
     - name: Clean up eggs and filestorage dir
       run: |
-        cd $GITHUB_WORKSPACE
+        cd "$GITHUB_WORKSPACE"
         rm -rf eggs/
         rm -rf var/
     - name: Install dependencies
       run: |
-        cd $GITHUB_WORKSPACE
+        cd "$GITHUB_WORKSPACE"
         virtualenv --python=python${{ matrix.python-version }} venv
         venv/bin/pip install setuptools==44.0.0
         venv/bin/pip install zc.buildout==2.13.8
-        ${{ inputs.additional_installs }}
-        venv/bin/buildout -c ${{ inputs.buildout_file }}
+        if [ -n "${{ inputs.additional_installs }}" ]; then
+          eval "${{ inputs.additional_installs }}"
+        fi
+        venv/bin/buildout -c "${{ inputs.buildout_file }}"
     - name: Test with pytest
       id: tests
       run: |

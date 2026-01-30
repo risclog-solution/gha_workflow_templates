@@ -53,4 +53,4 @@ jobs:
       id: pin
       run: |
         VERSION=$(git tag | tail -1)
-        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "version=${VERSION}" >> "$GITHUB_OUTPUT"

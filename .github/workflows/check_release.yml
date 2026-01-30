@@ -19,5 +19,5 @@ jobs:
       if: contains(github.event.head_commit.message, '[release]')
       run: |
         CHANGELOG=$(grep "Nothing changed yet." CHANGES.rst >/dev/null; echo $?)
-        echo $CHANGELOG
-        echo "result=${CHANGELOG}" >> $GITHUB_OUTPUT
+        echo "$CHANGELOG"
+        echo "result=${CHANGELOG}" >> "$GITHUB_OUTPUT"

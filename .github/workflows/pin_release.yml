@@ -27,14 +27,14 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.CLONE_KEY }}
     - name: Checkout ${{ inputs.repository }}
-      run: git clone git@github.com:risclog-solution/${{ inputs.repository }}.git $GITHUB_WORKSPACE
+      run: git clone git@github.com:risclog-solution/${{ inputs.repository }}.git "$GITHUB_WORKSPACE"
     - name: Prepare git client
       run: |
         git config --local user.email "info@risclog.de"
         git config --local user.name "risclog"
     - name: Pin new release version ${{ inputs.version }} for ${{ inputs.package }}
       run: |
-        sed -i -- "s/${{ inputs.package }}==.*/${{ inputs.package }}==${{ inputs.version }}/" ${{ inputs.versions_path }}
-        git add ${{ inputs.versions_path }}
+        sed -i -- "s/${{ inputs.package }}==.*/${{ inputs.package }}==${{ inputs.version }}/" "${{ inputs.versions_path }}"
+        git add "${{ inputs.versions_path }}"
         git commit -m "Pin new release ${{ inputs.package }} == ${{ inputs.version }}"
         git push

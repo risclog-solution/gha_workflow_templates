@@ -24,17 +24,17 @@ jobs:
       with:
         pattern: coverage-xml
     - name: Prepare repository url
-      run: echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+      run: echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_ENV"
     - name: Prepare environment for python
       if: ${{ inputs.project_type == 'python'}}
       run: |
-        echo "COVERAGE_PATH=-Dsonar.python.coverage.reportPaths=/home/runner/work/${{env.REPOSITORY_NAME}}/${{env.REPOSITORY_NAME}}/coverage-xml/coverage.xml" >> $GITHUB_ENV
-        echo "EXCLUSIONS=-Dsonar.exclusions=**/*.js,**/*.css,**/*.scss,**/*.html,**/versions/**,**VUVM20**" >> $GITHUB_ENV
+        echo "COVERAGE_PATH=-Dsonar.python.coverage.reportPaths=/home/runner/work/${{env.REPOSITORY_NAME}}/${{env.REPOSITORY_NAME}}/coverage-xml/coverage.xml" >> "$GITHUB_ENV"
+        echo "EXCLUSIONS=-Dsonar.exclusions=**/*.js,**/*.css,**/*.scss,**/*.html,**/versions/**,**VUVM20**" >> "$GITHUB_ENV"
     - name: Prepare environment for javascript
       if: ${{ inputs.project_type == 'javascript'}}
       run: |
-        echo "COVERAGE_PATH=-Dsonar.javascript.lcov.reportPaths=${GITHUB_WORKSPACE}/lcov.info" >> $GITHUB_ENV
-        echo "EXCLUSIONS=-Dsonar.exclusions=**/*.test.js,**/*index.js,src/polyfill.js,src/serviceWorker.js" >> $GITHUB_ENV
+        echo "COVERAGE_PATH=-Dsonar.javascript.lcov.reportPaths=${GITHUB_WORKSPACE}/lcov.info" >> "$GITHUB_ENV"
+        echo "EXCLUSIONS=-Dsonar.exclusions=**/*.test.js,**/*index.js,src/polyfill.js,src/serviceWorker.js" >> "$GITHUB_ENV"
     - name: SonarQube Scan
       if: ${{ !github.event.number }}
       uses: sonarsource/sonarqube-scan-action@v4.2.1
