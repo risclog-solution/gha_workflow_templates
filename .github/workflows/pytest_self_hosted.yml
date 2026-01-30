@@ -81,10 +81,12 @@ jobs:
         virtualenv --python=python${{ matrix.python-version }} venv
         venv/bin/pip install setuptools==44.0.0
         venv/bin/pip install zc.buildout==2.13.8
-        if [ -n "${{ inputs.additional_installs }}" ]; then
-          eval "${{ inputs.additional_installs }}"
-        fi
-        venv/bin/buildout -c "${{ inputs.buildout_file }}"
+    - name: Additional installs
+      if: ${{ inputs.additional_installs }}
+      working-directory: ${{ github.workspace }}
+      run: ${{ inputs.additional_installs }}
+    - name: Run buildout
+      run: cd "$GITHUB_WORKSPACE" && venv/bin/buildout -c "${{ inputs.buildout_file }}"
     - name: Test with pytest
       id: tests
       run: |
