@@ -17,14 +17,7 @@ jobs:
           COVERAGE_FILE: .coverage.selftest
         run: |
           python -m pip install --upgrade coverage[toml]
-          cat > sample.py <<'PY'
-          def add(a, b):
-              return a + b
-
-          if __name__ == "__main__":
-              print(add(1, 2))
-          PY
-          COVERAGE_FILE=.coverage.selftest python -m coverage run sample.py
+          python -m coverage run .github/fixtures/coverage_sample.py
       - name: Upload coverage RAW data
         uses: actions/upload-artifact@v4
         with:
