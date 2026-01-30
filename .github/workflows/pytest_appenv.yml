@@ -109,12 +109,7 @@ jobs:
       run: |
         mkdir -p ~/.config/pip/
         echo "$pipconf" > ~/.config/pip/pip.conf
-        py_le_310=$(python - <<'PY'
-        import sys
-        print("1" if sys.version_info[:2] <= (3, 10) else "0")
-        PY
-        )
-        if [ "$py_le_310" = "1" ]; then
+        if [ "${{ matrix.python-version }}" = "3.9" ] || [ "${{ matrix.python-version }}" = "3.10" ]; then
           echo "Python <= 3.10 detected: running ./appenv update-lockfile"
           ./appenv update-lockfile
         fi
