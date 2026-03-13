@@ -43,6 +43,15 @@ jobs:
         mkdir -p ~/.config/pip/
         echo "${{ secrets.PIPCONF }}" > ~/.config/pip/pip.conf
         pipx install "virtualenv<20.0.0"
+        py_le_310=$(python - <<'PY'
+        import sys
+        print("1" if sys.version_info[:2] <= (3, 10) else "0")
+        PY
+        )
+        if [ "$py_le_310" = "1" ]; then
+          echo "Python <= 3.10 detected: running ./appenv update-lockfile"
+          ./appenv update-lockfile
+        fi
         ./appenv prepare
     - name: Setup PostgreSQL environment
       run: |
