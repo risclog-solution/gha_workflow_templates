@@ -1,0 +1,8 @@
+repos:
+  - repo: local
+    hooks:
+      - id: format-check
+        name: format-check
+        entry: python -c "print('ok')"
+        language: python
+        language_version: python3.11

@@ -5,6 +5,52 @@ on:
   pull_request:
 
 jobs:
+  pre-commit-resolution:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify fallback default without config
+        env:
+          DEFAULT_PYTHON_VERSION: "3.9"
+        run: |
+          tmpdir=$(mktemp -d)
+          output=$(
+            cd "$tmpdir" &&
+            ruby "$GITHUB_WORKSPACE/.github/scripts/resolve_pre_commit_python.rb"
+          )
+          echo "$output" | grep -Fx "python-version=3.9"
+          echo "$output" | grep -Fx "source=default fallback"
+      - name: Verify default_language_version.python resolution
+        env:
+          DEFAULT_PYTHON_VERSION: "3.9"
+        run: |
+          output=$(ruby .github/scripts/resolve_pre_commit_python.rb .github/fixtures/pre_commit_default_language.yaml)
+          echo "$output" | grep -Fx "python-version=3.12"
+          echo "$output" | grep -Fx "source=default_language_version.python"
+      - name: Verify hook language_version resolution
+        env:
+          DEFAULT_PYTHON_VERSION: "3.9"
+        run: |
+          output=$(ruby .github/scripts/resolve_pre_commit_python.rb .github/fixtures/pre_commit_hook_language.yaml)
+          echo "$output" | grep -Fx "python-version=3.11"
+          echo "$output" | grep -Fx "source=hook language_version"
+      - name: Verify workflow input overrides config
+        env:
+          DEFAULT_PYTHON_VERSION: "3.9"
+          INPUT_PYTHON_VERSION: "3.13"
+        run: |
+          output=$(ruby .github/scripts/resolve_pre_commit_python.rb .github/fixtures/pre_commit_default_language.yaml)
+          echo "$output" | grep -Fx "python-version=3.13"
+          echo "$output" | grep -Fx "source=workflow input"
+      - name: Verify conflicting config fails fast
+        env:
+          DEFAULT_PYTHON_VERSION: "3.9"
+        run: |
+          if ruby .github/scripts/resolve_pre_commit_python.rb .github/fixtures/pre_commit_conflict.yaml; then
+            echo "expected conflicting config to fail"
+            exit 1
+          fi
+
   generate-coverage-data:
     runs-on: ubuntu-latest
     strategy:
