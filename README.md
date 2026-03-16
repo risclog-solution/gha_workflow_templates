@@ -65,7 +65,7 @@ The reusable workflow in [`.github/workflows/pre_commit.yml`](.github/workflows/
 1. An explicit override via workflow input `python_version`
 2. Automatic detection from the caller's `.pre-commit-config.yaml`
 
-The resolution logic lives in [`.github/scripts/resolve_pre_commit_python.rb`](.github/scripts/resolve_pre_commit_python.rb).
+The reusable workflow embeds the resolution logic so it works in the caller repository checkout. The matching helper script in [`.github/scripts/resolve_pre_commit_python.rb`](.github/scripts/resolve_pre_commit_python.rb) is kept for local testing and documentation.
 
 ### Resolution Order
 
@@ -126,6 +126,7 @@ repos:
 ### Config Rules and Caveats
 
 - The workflow only auto-detects `.pre-commit-config.yaml` or `.pre-commit-config.yml` in the repository root.
+- Caller repositories do not need to carry `.github/scripts/resolve_pre_commit_python.rb`; the reusable workflow ships its own resolver logic.
 - `python_version` in the workflow always wins. If the input is set, the config is not consulted.
 - `default_language_version.python` is the preferred way to define one project-wide Python version for `pre-commit`.
 - A single hook-level `language_version` is also supported.
