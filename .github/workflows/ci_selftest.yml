@@ -50,6 +50,34 @@ jobs:
             echo "expected conflicting config to fail"
             exit 1
           fi
+      - name: Verify reusable workflow resolver works without helper script in caller repo
+        run: |
+          tmpdir=$(mktemp -d)
+          cat > "$tmpdir/.pre-commit-config.yaml" <<'YAML'
+          default_language_version:
+            python: python3.12
+          YAML
+          run_block=$(ruby - <<'RUBY'
+          require "yaml"
+
+          workflow = YAML.safe_load(File.read(".github/workflows/pre_commit.yml"), aliases: true)
+          step = workflow.fetch("jobs").fetch("pre-commit").fetch("steps").find do |entry|
+            entry["id"] == "resolve-python"
+          end
+          abort "resolve-python step not found" unless step
+          print step.fetch("run")
+          RUBY
+          )
+          (
+            cd "$tmpdir" &&
+            GITHUB_OUTPUT="$tmpdir/github_output" \
+            DEFAULT_PYTHON_VERSION=3.9 \
+            INPUT_PYTHON_VERSION="" \
+            bash -euo pipefail -c "$run_block"
+          )
+          grep -Fx "python-version=3.12" "$tmpdir/github_output"
+          grep -Fx "source=default_language_version.python" "$tmpdir/github_output"
+          test ! -e "$tmpdir/.github/scripts/resolve_pre_commit_python.rb"
 
   generate-coverage-data:
     runs-on: ubuntu-latest
