@@ -109,13 +109,10 @@ jobs:
       run: |
         mkdir -p ~/.config/pip/
         echo "$pipconf" > ~/.config/pip/pip.conf
-        if [ "${{ matrix.python-version }}" = "3.9" ] || [ "${{ matrix.python-version }}" = "3.10" ]; then
-          echo "Python <= 3.10 detected: running ./appenv update-lockfile"
-          ./appenv update-lockfile
-        fi
         ./appenv prepare
       env:
         pipconf: ${{ secrets.PIPCONF }}
+        APPENV_EXTRAS: test
     - name: Test with pytest
       id: tests
       run: xvfb-run --auto-servernum ${{ inputs.test_command }} --junit-xml pytest.xml
@@ -127,6 +124,7 @@ jobs:
         POSTGRES_PASS: P0sTGrE5*Pa55W0rt!
         POSTGRES_PASSWORD: P0sTGrE5*Pa55W0rt!
         DISPLAY: :0
+        APPENV_EXTRAS: test
     - name: Upload coverage RAW data
       uses: actions/upload-artifact@v4
       with:
