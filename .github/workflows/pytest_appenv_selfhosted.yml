@@ -31,7 +31,9 @@ env:
 
 jobs:
   test:
-    runs-on: self-hosted
+    runs-on:
+      - self-hosted
+      - nixos
     timeout-minutes: ${{ inputs.timeout_minutes }}
     steps:
     - uses: AutoModality/action-clean@v1
