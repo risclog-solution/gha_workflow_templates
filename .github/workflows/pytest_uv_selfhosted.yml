@@ -1,0 +1,80 @@
+name: Test
+
+on:
+  workflow_call:
+    inputs:
+      timeout_minutes:
+        default: 10
+        required: false
+        type: number
+      cache_hashfile:
+        default: "**/uv.lock"
+        required: false
+        type: string
+      extra_software_to_install:
+        default: ""
+        required: false
+        type: string
+      test_command:
+        default: "uv run pytest"
+        required: false
+        type: string
+    secrets:
+      PIPCONF:
+        required: false
+
+env:
+  FORCE_COLOR: "1"  # Make tools pretty.
+  PYTHONUNBUFFERED: 1
+  GOCEPT_WEBDRIVER_BROWSER: firefox
+  GOCEPT_SELENIUM_HEADLESS: true
+
+jobs:
+  test:
+    runs-on:
+      - self-hosted
+      - nixos
+    timeout-minutes: ${{ inputs.timeout_minutes }}
+    steps:
+    - uses: AutoModality/action-clean@v1
+    - name: Cleanup temp dir
+      run: rm -rf /tmp/gocept_selenium_screenshot*
+    - uses: actions/checkout@v4
+    - name: Install python packages
+      run: |
+        mkdir -p ~/.config/pip/
+        echo "${{ secrets.PIPCONF }}" > ~/.config/pip/pip.conf
+        uv sync
+    - name: Setup PostgreSQL environment
+      run: |
+        echo "localhost:5432:*:postgres:P0sTGrE5*Pa55W0rt!" > ~/.pgpass
+        echo "localhost:5432:*:github-runner-${{ runner.name }}:R4nneR*Pa55W0rt!" >> ~/.pgpass
+        chmod 0600 ~/.pgpass
+    - name: Test with pytest
+      id: tests
+      run: |
+        uv run pytest --junit-xml pytest.xml
+      env:
+        COVERAGE_FILE: .coverage.${{ runner.name }}
+        CI_TEST_RUN: 1
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: P0sTGrE5*Pa55W0rt!
+    - name: Upload coverage RAW data
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-data-${{ runner.name }}
+        include-hidden-files: true
+        path: ".coverage*"
+    - name: Upload Test Results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ runner.name }}
+        path: pytest.xml
+    - name: Upload Test Artifacts
+      if: ${{ failure() && steps.tests.conclusion == 'failure' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-failures-${{ runner.name }}
+        path: |
+          /tmp/gocept_selenium_screenshot*.png
