@@ -20,7 +20,7 @@ on:
         required: false
         type: string
     secrets:
-      PIPCONF:
+      UVCONF:
         required: false
 
 env:
@@ -42,8 +42,8 @@ jobs:
     - uses: actions/checkout@v4
     - name: Install python packages
       run: |
-        mkdir -p ~/.config/pip/
-        echo "${{ secrets.PIPCONF }}" > ~/.config/pip/pip.conf
+        mkdir -p ~/.config/uv/
+        echo "${{ secrets.UVCONF }}" > ~/.config/uv/uv.toml
         uv sync
     - name: Setup PostgreSQL environment
       run: |
