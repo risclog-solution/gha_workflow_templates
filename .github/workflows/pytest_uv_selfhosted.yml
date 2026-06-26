@@ -43,7 +43,7 @@ jobs:
     - name: Install python packages
       run: |
         mkdir -p ~/.config/uv/
-        echo "${{ secrets.UVCONF }}" > ~/.config/uv/uv.toml
+        echo ${{ secrets.UVCONF }} > ~/.config/uv/uv.toml
         uv sync
     - name: Setup PostgreSQL environment
       run: |
