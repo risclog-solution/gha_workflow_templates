@@ -44,7 +44,7 @@ jobs:
       run: |
         mkdir -p ~/.config/uv/
         echo "${{ secrets.UVCONF }}" > ~/.config/uv/uv.toml
-        uv sync
+        uv sync --all-groups
     - name: Setup PostgreSQL environment
       run: |
         echo "localhost:5432:*:postgres:P0sTGrE5*Pa55W0rt!" > ~/.pgpass
