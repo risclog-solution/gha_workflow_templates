@@ -5,7 +5,7 @@ on:
     inputs:
       versions:
         default: >-
-            ["3.12",]
+            ["3.9",]
         required: false
         type: string
       timeout_minutes:
