@@ -5,7 +5,7 @@ on:
     inputs:
       versions:
         default: >-
-            ["3.12",]
+            ["3.9",]
         required: false
         type: string
       timeout_minutes:
@@ -13,7 +13,7 @@ on:
         required: false
         type: number
       cache_hashfile:
-        default: "**/requirements.lock"
+        default: "**/uv.lock"
         required: false
         type: string
       extra_software_to_install:
@@ -21,11 +21,11 @@ on:
         required: false
         type: string
       test_command:
-        default: "./pytest"
+        default: "uv run pytest"
         required: false
         type: string
     secrets:
-      PIPCONF:
+      UVCONF:
         required: false
 
 env:
@@ -97,27 +97,18 @@ jobs:
 
           EOF
           sudo mv policy.xml /etc/ImageMagick-6/policy.xml
-    - name: Initialize appenv cache
-      if: ${{ inputs.cache_hashfile }}
-      uses: actions/cache@v3
-      with:
-        path: .appenv
-        key: ${{ runner.os }}-appenv-${{ hashFiles(inputs.cache_hashfile) }}
-        restore-keys: |
-          ${{ runner.os }}-appenv-
     - name: Install the latest version of uv
       uses: astral-sh/setup-uv@v5
     - name: Install python packages
       run: |
-        mkdir -p ~/.config/pip/
-        echo "$pipconf" > ~/.config/pip/pip.conf
-        ./appenv prepare
+        mkdir -p ~/.config/uv/
+        echo "$uvconf" > ~/.config/uv/uv.toml
+        uv sync --all-extras
       env:
-        pipconf: ${{ secrets.PIPCONF }}
-        APPENV_EXTRAS: test
+        uvconf: ${{ secrets.UVCONF }}
     - name: Test with pytest
       id: tests
-      run: xvfb-run --auto-servernum ${{ inputs.test_command }} --junit-xml pytest.xml
+      run: uv run pytest -v --junit-xml pytest.xml
       env:
         COVERAGE_FILE: .coverage.${{ matrix.python-version }}
         CI_TEST_RUN: 1
@@ -126,7 +117,6 @@ jobs:
         POSTGRES_PASS: P0sTGrE5*Pa55W0rt!
         POSTGRES_PASSWORD: P0sTGrE5*Pa55W0rt!
         DISPLAY: :0
-        APPENV_EXTRAS: test
     - name: Upload coverage RAW data
       uses: actions/upload-artifact@v4
       with:
