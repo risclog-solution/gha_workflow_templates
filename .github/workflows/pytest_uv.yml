@@ -1,0 +1,139 @@
+name: Test
+
+on:
+  workflow_call:
+    inputs:
+      versions:
+        default: >-
+            ["3.9",]
+        required: false
+        type: string
+      timeout_minutes:
+        default: 10
+        required: false
+        type: number
+      cache_hashfile:
+        default: "**/uv.lock"
+        required: false
+        type: string
+      extra_software_to_install:
+        default: ""
+        required: false
+        type: string
+      test_command:
+        default: "uv run pytest"
+        required: false
+        type: string
+    secrets:
+      UVCONF:
+        required: false
+
+env:
+  FORCE_COLOR: "1"  # Make tools pretty.
+  PYTHONUNBUFFERED: 1
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout_minutes }}
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: P0sTGrE5*Pa55W0rt!
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+        volumes:
+          - /home/runner:/home/runner
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ${{fromJson(inputs.versions)}}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Setup PostgreSQL environment
+      run: |
+        echo "localhost:5432:*:postgres:P0sTGrE5*Pa55W0rt!" > ~/.pgpass
+        echo "localhost:5432:*:runner:R4nneR*Pa55W0rt!" >> ~/.pgpass
+        chmod 0600 ~/.pgpass
+        createuser -h localhost -U postgres --login runner --createdb --superuser
+        psql -h localhost -U postgres -d postgres -c "ALTER ROLE \"runner\" WITH ENCRYPTED PASSWORD 'R4nneR*Pa55W0rt!' "
+        createuser -h localhost -U postgres --login claimx
+        createuser -h localhost -U postgres --login clx
+        createuser -h localhost -U postgres --login clx_readonly
+        createuser -h localhost -U postgres --login clxdmci
+        createuser -h localhost -U postgres --login mp
+        createuser -h localhost -U postgres --login brokeruser
+        createuser -h localhost -U postgres --login backup
+        createuser -h localhost -U postgres --login aamweb
+        createuser -h localhost -U postgres --login admin_role
+        createuser -h localhost -U postgres --login admin_user
+    - name: Add claimx directories
+      run: |
+        sudo mkdir -p /u01/app/claimx/log/
+        sudo mkdir -p /u01/app/claimx/temp/
+        sudo chmod -R 777 /u01
+    - name: Install needed software
+      run: |
+        sudo apt-get update
+        sudo apt-get -yqq install wkhtmltopdf qpdf ghostscript imagemagick fonts-freefont-ttf poppler-utils libpq-dev libxml2-dev libxslt-dev libcairo2-dev ${{inputs.extra_software_to_install}}
+    - name: Configure ImageMagick properly
+      run: |
+          cat > policy.xml <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <policymap>
+            <policy domain="coder" rights="read|write" pattern="PDF,PS" />
+          </policymap>
+
+          EOF
+          sudo mv policy.xml /etc/ImageMagick-6/policy.xml
+    - name: Install the latest version of uv
+      uses: astral-sh/setup-uv@v5
+    - name: Install python packages
+      run: |
+        mkdir -p ~/.config/uv/
+        echo "$uvconf" > ~/.config/uv/uv.toml
+        uv sync --all-extras
+      env:
+        uvconf: ${{ secrets.UVCONF }}
+    - name: Test with pytest
+      id: tests
+      run: uv run pytest -v --junit-xml pytest.xml
+      env:
+        COVERAGE_FILE: .coverage.${{ matrix.python-version }}
+        CI_TEST_RUN: 1
+        POSTGRES_HOST: localhost
+        POSTGRES_USER: postgres
+        POSTGRES_PASS: P0sTGrE5*Pa55W0rt!
+        POSTGRES_PASSWORD: P0sTGrE5*Pa55W0rt!
+        DISPLAY: :0
+    - name: Upload coverage RAW data
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-data-${{ matrix.python-version }}
+        include-hidden-files: true
+        path: ".coverage*"
+    - name: Upload Test Results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ matrix.python-version }}
+        path: pytest.xml
+    - name: Upload Test Artifacts
+      if: ${{ failure() && steps.tests.conclusion == 'failure' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-failures-${{ matrix.python-version }}
+        path: |
+          /tmp/gocept_selenium_screenshot_*.png
+          /tmp/*.pdf
