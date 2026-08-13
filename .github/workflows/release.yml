@@ -54,3 +54,18 @@ jobs:
       run: |
         VERSION=$(git tag | tail -1)
         echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+    - name: Set up uv
+      if: hashFiles('uv.lock')
+      uses: astral-sh/setup-uv@v7
+
+    - name: Refresh uv lockfile
+      if: hashFiles('uv.lock')
+      run: |
+        uv lock
+
+        if ! git diff --quiet -- uv.lock; then
+          git add uv.lock
+          git commit -m "chore: refresh uv.lock after release [skip ci]"
+          git push
+        fi
