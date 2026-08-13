@@ -17,6 +17,8 @@ on:
     secrets:
       PYPIRC:
         required: true
+      UVCONF:
+        required: false
       BUILD_SVC_PAT:
         required: false
 
@@ -55,9 +57,17 @@ jobs:
         VERSION=$(git tag | tail -1)
         echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
-    - name: Set up uv
+    - name: Install uv
       if: hashFiles('uv.lock')
       uses: astral-sh/setup-uv@v7
+
+    - name: Configure uv
+      if: hashFiles('uv.lock')
+      run: |
+        mkdir -p ~/.config/uv/
+        echo "$uvconf" > ~/.config/uv/uv.toml
+      env:
+        uvconf: ${{ secrets.UVCONF }}
 
     - name: Refresh uv lockfile
       if: hashFiles('uv.lock')
