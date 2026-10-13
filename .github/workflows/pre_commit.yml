@@ -18,7 +18,7 @@ jobs:
     - name: Resolve Python version
       id: resolve-python
       env:
-        DEFAULT_PYTHON_VERSION: "3.9"
+        DEFAULT_PYTHON_VERSION: "3.12"
         INPUT_PYTHON_VERSION: ${{ inputs.python_version }}
       run: |
         ruby - <<'RUBY' >> "$GITHUB_OUTPUT"
