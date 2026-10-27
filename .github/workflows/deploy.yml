@@ -23,8 +23,6 @@ on:
         required: true
       SSH_PRIVATE_KEY:
         required: true
-      GPG_KEY:
-        required: false
 
 jobs:
   deploy:
