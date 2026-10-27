@@ -23,6 +23,9 @@ on:
         required: true
       SSH_PRIVATE_KEY:
         required: true
+      CHAT_WEBHOOK_URL:
+        description: Full HTTPS webhook URL for deployment notifications
+        required: true
 
 jobs:
   deploy:
@@ -34,7 +37,16 @@ jobs:
       - nixos
     env:
       TARGET: ''
+      CHAT_WEBHOOK_URL: ${{ secrets.CHAT_WEBHOOK_URL }}
     steps:
+    - name: Validate notification configuration
+      id: validate-webhook
+      shell: bash
+      run: |
+        if [[ "$CHAT_WEBHOOK_URL" != https://?* ]]; then
+          echo "::error::CHAT_WEBHOOK_URL must be set to a full HTTPS webhook URL."
+          exit 1
+        fi
     - name: Clean up
       run: |
           rm -rf "$GITHUB_WORKSPACE"
@@ -121,11 +133,11 @@ jobs:
       run: |
         BUILD_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
         payload=$(printf '{"text": "%s deployment started 🚢\\n%s"}' "${{ inputs.target }}" "$BUILD_URL")
-        curl -H 'Content-Type: application/json' -d "$payload" https://chat.risclog.com/webhook/745c0604-6456-4eba-97e5-df9a36c7ae23
+        curl --fail --silent --show-error -H 'Content-Type: application/json' -d "$payload" "$CHAT_WEBHOOK_URL"
         ./batou deploy "${{ inputs.target }}"
     - name: Report deployment failure
-      if: ${{ failure() }}
+      if: ${{ failure() && steps.validate-webhook.outcome == 'success' }}
       run: |
         BUILD_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
         payload=$(printf '{"text": "%s deployment FAILED ⚠️\\n%s"}' "${{ inputs.target }}" "$BUILD_URL")
-        curl -H 'Content-Type: application/json' -d "$payload" https://chat.risclog.com/webhook/745c0604-6456-4eba-97e5-df9a36c7ae23
+        curl --fail --silent --show-error -H 'Content-Type: application/json' -d "$payload" "$CHAT_WEBHOOK_URL"

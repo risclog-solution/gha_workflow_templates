@@ -9,6 +9,61 @@ workflow = YAML.safe_load(
 step = workflow.fetch("jobs").fetch("deploy").fetch("steps").find do |entry|
   entry["id"] == "update-branch"
 end
+
+steps = workflow.fetch("jobs").fetch("deploy").fetch("steps")
+validation = steps.find { |entry| entry["id"] == "validate-webhook" }.fetch("run")
+notifications = steps.select { |entry| entry["run"].to_s.include?('curl --fail') }
+raise "Expected start and failure notifications" unless notifications.size == 2
+raise "Webhook must be a required secret" unless workflow.fetch("on") {
+  workflow.fetch(true)
+}.fetch("workflow_call").fetch("secrets").fetch("CHAT_WEBHOOK_URL").fetch("required")
+
+Dir.mktmpdir("deploy-notification-selftest-") do |dir|
+  log = File.join(dir, "calls")
+  mock_path = File.join(dir, "mock.sh")
+  File.write(mock_path, <<~'BASH')
+    curl() {
+      printf '%s\n' "$@" >> "$CALL_LOG"
+      return "$CURL_STATUS"
+    }
+    export -f curl
+  BASH
+  File.write(File.join(dir, "batou"), "#!/bin/sh\nprintf 'batou\\n' >> \"$CALL_LOG\"\n")
+  File.chmod(0o755, File.join(dir, "batou"))
+  env = {
+    "CHAT_WEBHOOK_URL" => "https://chat.example.invalid/webhook/test",
+    "GITHUB_SERVER_URL" => "https://github.com",
+    "GITHUB_REPOSITORY" => "example/deployment",
+    "GITHUB_RUN_ID" => "123",
+    "BASH_ENV" => mock_path,
+    "CALL_LOG" => log,
+    "CURL_STATUS" => "0"
+  }
+  ["", "http://chat.example.invalid/webhook/test", "https://"].each do |url|
+    _, status = Open3.capture2e(env.merge("CHAT_WEBHOOK_URL" => url),
+                              "bash", "-euo", "pipefail", "-c", validation)
+    raise "Invalid webhook accepted" if status.success?
+  end
+  _, status = Open3.capture2e(env, "bash", "-euo", "pipefail", "-c", validation)
+  raise "Valid webhook rejected" unless status.success?
+
+  notifications.each do |notification|
+    script = notification.fetch("run").gsub("${{ inputs.target }}", "staging")
+    ["0", "22"].each do |curl_status|
+      File.write(log, "")
+      _, status = Open3.capture2e(env.merge("CURL_STATUS" => curl_status),
+                                "bash", "-euo", "pipefail", "-c", script, chdir: dir)
+      raise "Notification exit status ignored" unless status.success? == (curl_status == "0")
+      calls = File.readlines(log, chomp: true)
+      raise "Configured webhook not used" unless calls.include?(env["CHAT_WEBHOOK_URL"])
+      raise "HTTP failures not checked" unless calls.include?("--fail")
+      if script.include?("./batou")
+        raise "Unexpected deployment after notification failure" unless calls.include?("batou") == (curl_status == "0")
+      end
+    end
+  end
+end
+puts "Webhook configuration, both notification destinations and HTTP failures: OK"
 script = step.fetch("run")
 revision = "b" * 40
 

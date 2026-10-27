@@ -60,6 +60,24 @@ jobs:
 
 ## Deployment Workflow
 
+Callers must pass the secrets `CLONE_KEY`, `SSH_PRIVATE_KEY`, and
+`CHAT_WEBHOOK_URL`. Set `CHAT_WEBHOOK_URL` to the complete HTTPS webhook URL
+in the caller repository's Actions secrets (or an accessible organization
+secret). Both start and failure notifications use that URL; there is no
+default destination. Missing or non-HTTPS values fail before deployment
+setup, and HTTP notification errors fail the step.
+
+```yaml
+secrets:
+  CLONE_KEY: ${{ secrets.CLONE_KEY }}
+  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  CHAT_WEBHOOK_URL: ${{ secrets.CHAT_WEBHOOK_URL }}
+```
+
+Migration: configure the secret and update **every** caller before publishing
+the template change, including deployment jobs in application repositories.
+The new secret is required.
+
 `deploy.yml` accepts an optional `revision` input: a full, lowercase,
 40-character commit SHA reachable from the deployment repository's `master`.
 With this input, the target branch must be an ancestor of that commit.
