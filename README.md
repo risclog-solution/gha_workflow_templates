@@ -58,6 +58,43 @@ jobs:
     uses: risclog-solution/gha_workflow_templates/.github/workflows/pre_commit.yml@master
 ```
 
+## Deployment Workflow
+
+`deploy.yml` accepts an optional `revision` input: a full, lowercase,
+40-character commit SHA reachable from the deployment repository's `master`.
+With this input, the target branch must be an ancestor of that commit.
+The workflow fast-forwards it to exactly the requested revision, checks the
+result, and pushes without force before running batou on the target branch.
+Invalid revisions, diverged or newer target branches, and rejected pushes
+fail the deployment. Existing batou environment branch guards remain active.
+
+For a multi-stage pipeline, select the deployment SHA once and pass the same
+value to every invocation:
+
+```yaml
+with:
+  target: staging
+  repository: kravagonline_deployment
+  revision: ${{ needs.prepare.outputs.revision }}
+```
+
+Without `revision`, existing callers retain their branch-merging behavior:
+`master` is merged into the target, except `production`, which uses `staging`.
+The fixed revision pins the deployment code and package version definitions,
+not moving source checkouts configured by that deployment.
+
+Deployment jobs use a concurrency group per deployment repository and target
+within the caller repository. Multi-stage callers should also serialize the
+whole pipeline with a separate workflow-level group. GitHub retains at most
+one pending run/job per group; newer pending work replaces older pending work.
+Other caller repositories do not share these locks.
+
+Run the isolated deployment step checks with:
+
+```bash
+ruby .github/scripts/test_deploy.rb
+```
+
 ## Pre-commit Workflow
 
 The reusable workflow in [`.github/workflows/pre_commit.yml`](.github/workflows/pre_commit.yml) supports two modes:

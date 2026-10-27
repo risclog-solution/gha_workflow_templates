@@ -13,6 +13,11 @@ on:
       repository:
         required: true
         type: string
+      revision:
+        description: Exact master commit to deploy using fast-forward only; empty preserves legacy branch merging
+        required: false
+        type: string
+        default: ''
     secrets:
       CLONE_KEY:
         required: true
@@ -23,6 +28,9 @@ on:
 
 jobs:
   deploy:
+    concurrency:
+      group: deploy-${{ inputs.repository }}-${{ inputs.target }}
+      cancel-in-progress: false
     runs-on:
       - self-hosted
       - nixos
@@ -76,12 +84,41 @@ jobs:
         git config --global core.sshCommand "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -F /dev/null"
         git clone --verbose git@github.com:risclog-solution/${{ inputs.repository }}.git .
     - name: Update branch ${{ inputs.target }}
+      id: update-branch
+      env:
+        DEPLOY_TARGET: ${{ inputs.target }}
+        DEPLOY_REVISION: ${{ inputs.revision }}
       run: |
         cd "$GITHUB_WORKSPACE"
-        git checkout "${{ inputs.target }}"
-        source="master" && [[ "${{ inputs.target }}" == "production" ]] && source="staging"
-        git merge "origin/$source"
-        git push
+        if [[ -n "$DEPLOY_REVISION" ]]; then
+          if [[ ! "$DEPLOY_REVISION" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::revision must be a full 40-character commit SHA."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$DEPLOY_REVISION" origin/master; then
+            echo "::error::Requested revision is not a commit on origin/master."
+            exit 1
+          fi
+          git checkout "$DEPLOY_TARGET"
+          if ! git merge-base --is-ancestor HEAD "$DEPLOY_REVISION"; then
+            echo "::error::Target branch is newer than or diverges from the requested revision."
+            exit 1
+          fi
+          git merge --ff-only "$DEPLOY_REVISION"
+          if [[ "$(git rev-parse HEAD)" != "$DEPLOY_REVISION" ]]; then
+            echo "::error::Target branch does not match the requested revision."
+            exit 1
+          fi
+          git push origin "HEAD:refs/heads/$DEPLOY_TARGET"
+        else
+          git checkout "$DEPLOY_TARGET"
+          source="master"
+          if [[ "$DEPLOY_TARGET" == "production" ]]; then
+            source="staging"
+          fi
+          git merge "origin/$source"
+          git push
+        fi
     - name: Setup GPG
       run: |
         echo "${{ secrets.GPG_KEY }}" > ~/.private.key

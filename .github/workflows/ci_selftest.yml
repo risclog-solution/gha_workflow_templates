@@ -5,6 +5,13 @@ on:
   pull_request:
 
 jobs:
+  deployment-revision:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify fixed-revision and legacy deployment behavior
+        run: ruby .github/scripts/test_deploy.rb
+
   pre-commit-resolution:
     runs-on: ubuntu-latest
     steps:
