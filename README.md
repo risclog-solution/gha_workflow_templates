@@ -113,6 +113,33 @@ Run the isolated deployment step checks with:
 ruby .github/scripts/test_deploy.rb
 ```
 
+## Pinning Notification
+
+When the optional `CHAT_WEBHOOK_URL` secret is passed, `pin_release.yml` sends
+a separate message after successfully pushing a version pin. The message
+contains a ready-to-run `gh workflow run deploy-release.yml` command for the
+deployment repository selected by the existing `repository` input.
+The command passes the exact pinning commit as `revision`, not a later master
+tip. It does not start a deployment automatically. Without the webhook secret,
+pinning behaves as before and no notification is sent.
+The target deployment workflow must accept a `revision` input.
+
+The calling release workflow must forward the webhook secret to its
+`update-deployment` job:
+
+```yaml
+secrets:
+  CLONE_KEY: ${{ secrets.CLONE_KEY }}
+  CHAT_WEBHOOK_URL: ${{ secrets.CHAT_WEBHOOK_URL }}
+```
+
+Reusable workflows do not automatically receive the caller's repository secrets.
+Configure this secret in the application repository (or make an organization
+secret accessible to it), not only in the deployment repository.
+An invalid webhook or a failed notification marks the pinning job as failed;
+the version-pinning commit has already been pushed at that point.
+The existing release/changelog notification is unchanged.
+
 ## Pre-commit Workflow
 
 The reusable workflow in [`.github/workflows/pre_commit.yml`](.github/workflows/pre_commit.yml) supports two modes:

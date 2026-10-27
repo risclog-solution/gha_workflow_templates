@@ -18,10 +18,15 @@ on:
     secrets:
       CLONE_KEY:
         required: true
+      CHAT_WEBHOOK_URL:
+        description: Optional HTTPS webhook URL for a deployment command after successful version pinning
+        required: false
 
 jobs:
   pin:
     runs-on: ubuntu-latest
+    env:
+      CHAT_WEBHOOK_URL: ${{ secrets.CHAT_WEBHOOK_URL }}
     steps:
     - uses: webfactory/ssh-agent@v0.9.0
       with:
@@ -33,8 +38,28 @@ jobs:
         git config --local user.email "info@risclog.de"
         git config --local user.name "risclog"
     - name: Pin new release version ${{ inputs.version }} for ${{ inputs.package }}
+      id: pin
       run: |
         sed -i -- "s/${{ inputs.package }}==.*/${{ inputs.package }}==${{ inputs.version }}/" "${{ inputs.versions_path }}"
         git add "${{ inputs.versions_path }}"
         git commit -m "Pin new release ${{ inputs.package }} == ${{ inputs.version }}"
         git push
+        echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+    - name: Send deployment command
+      if: env.CHAT_WEBHOOK_URL != ''
+      env:
+        DEPLOY_REVISION: ${{ steps.pin.outputs.revision }}
+        DEPLOY_REPOSITORY: ${{ inputs.repository }}
+        PACKAGE: ${{ inputs.package }}
+        VERSION: ${{ inputs.version }}
+      run: |
+        if [[ "$CHAT_WEBHOOK_URL" != https://?* ]]; then
+          echo "::error::CHAT_WEBHOOK_URL must be a full HTTPS webhook URL."
+          exit 1
+        fi
+        command="gh workflow run deploy-release.yml --repo risclog-solution/$DEPLOY_REPOSITORY --ref master -f revision=$DEPLOY_REVISION"
+        message=$(printf '%s %s pinned in %s.\n\nStart deployment:\n```\n%s\n```\n\nPinning commit: %s/risclog-solution/%s/commit/%s' "$PACKAGE" "$VERSION" "$DEPLOY_REPOSITORY" "$command" "$GITHUB_SERVER_URL" "$DEPLOY_REPOSITORY" "$DEPLOY_REVISION")
+        payload=$(jq -n --arg text "$message" '{text: $text}')
+        curl --fail --silent --show-error \
+          -H 'Content-Type: application/json' \
+          -d "$payload" "$CHAT_WEBHOOK_URL"
