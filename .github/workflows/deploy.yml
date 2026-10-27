@@ -23,8 +23,6 @@ on:
         required: true
       SSH_PRIVATE_KEY:
         required: true
-      GPG_KEY:
-        required: true
 
 jobs:
   deploy:
@@ -119,11 +117,6 @@ jobs:
           git merge "origin/$source"
           git push
         fi
-    - name: Setup GPG
-      run: |
-        echo "${{ secrets.GPG_KEY }}" > ~/.private.key
-        gpg --import ~/.private.key
-        rm ~/.private.key
     - name: Deploy to ${{ inputs.target }}
       run: |
         BUILD_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
