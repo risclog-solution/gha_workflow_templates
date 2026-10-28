@@ -13,6 +13,11 @@ on:
       repository:
         required: true
         type: string
+      branch:
+        description: Deployment Git branch; empty uses the target environment name
+        required: false
+        type: string
+        default: ''
       revision:
         description: Exact master commit to deploy using fast-forward only; empty preserves legacy branch merging
         required: false
@@ -96,7 +101,7 @@ jobs:
     - name: Update branch ${{ inputs.target }}
       id: update-branch
       env:
-        DEPLOY_TARGET: ${{ inputs.target }}
+        DEPLOY_BRANCH: ${{ inputs.branch || inputs.target }}
         DEPLOY_REVISION: ${{ inputs.revision }}
       run: |
         cd "$GITHUB_WORKSPACE"
@@ -109,7 +114,7 @@ jobs:
             echo "::error::Requested revision is not a commit on origin/master."
             exit 1
           fi
-          git checkout "$DEPLOY_TARGET"
+          git checkout "$DEPLOY_BRANCH"
           if ! git merge-base --is-ancestor HEAD "$DEPLOY_REVISION"; then
             echo "::error::Target branch is newer than or diverges from the requested revision."
             exit 1
@@ -119,11 +124,18 @@ jobs:
             echo "::error::Target branch does not match the requested revision."
             exit 1
           fi
-          git push origin "HEAD:refs/heads/$DEPLOY_TARGET"
+          if ! git push origin "HEAD:refs/heads/$DEPLOY_BRANCH"; then
+            git fetch origin "refs/heads/$DEPLOY_BRANCH"
+            if [[ "$(git rev-parse FETCH_HEAD)" != "$DEPLOY_REVISION" ]]; then
+              echo "::error::Push failed and the remote branch does not match the requested revision."
+              exit 1
+            fi
+            echo "::notice::Remote branch already points to the requested revision."
+          fi
         else
-          git checkout "$DEPLOY_TARGET"
+          git checkout "$DEPLOY_BRANCH"
           source="master"
-          if [[ "$DEPLOY_TARGET" == "production" ]]; then
+          if [[ "$DEPLOY_BRANCH" == "production" ]]; then
             source="staging"
           fi
           git merge "origin/$source"

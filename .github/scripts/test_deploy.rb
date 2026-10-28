@@ -82,13 +82,14 @@ mock = <<~'BASH'
       checkout) [[ "$SCENARIO" != "checkout-failure" ]] ;;
       merge) [[ "$SCENARIO" != "merge-failure" ]] ;;
       rev-parse)
-        if [[ "$SCENARIO" == "wrong-head" ]]; then
+        if [[ "$SCENARIO" == "wrong-head" || ( "$2" == "FETCH_HEAD" && "$SCENARIO" != "push-same" ) ]]; then
           printf '%040d\n' 0
         else
           printf '%s\n' "$DEPLOY_REVISION"
         fi
         ;;
-      push) [[ "$SCENARIO" != "push-failure" ]] ;;
+      push) [[ "$SCENARIO" != "push-failure" && "$SCENARIO" != "push-same" && "$SCENARIO" != "fetch-failure" ]] ;;
+      fetch) [[ "$SCENARIO" != "fetch-failure" ]] ;;
       *) echo "Unexpected git command: $*" >&2; return 2 ;;
     esac
   }
@@ -107,7 +108,12 @@ cases = [
   ["wrong-head", revision, "staging", false, "does not match"],
   ["push-failure", revision, "staging", false, nil],
   ["legacy-staging", "", "staging", true, nil],
-  ["legacy-production", "", "production", true, nil]
+  ["legacy-production", "", "production", true, nil],
+  ["shared-staging", revision, "volkswagenstaging", true, nil, "staging"],
+  ["shared-production", revision, "aktivproduction", true, nil, "production"],
+  ["legacy-shared-production", "", "vwfsproduction", true, nil, "production"],
+  ["push-same", revision, "vwfsstaging", true, "already points", "staging"],
+  ["fetch-failure", revision, "vwfsstaging", false, nil, "staging"]
 ]
 
 Dir.mktmpdir("deploy-selftest-") do |dir|
@@ -115,7 +121,8 @@ Dir.mktmpdir("deploy-selftest-") do |dir|
   log_path = File.join(dir, "git.log")
   File.write(mock_path, mock)
 
-  cases.each do |scenario, sha, target, success, message|
+  cases.each do |scenario, sha, target, success, message, branch|
+    branch ||= target
     File.write(log_path, "")
     output, status = Open3.capture2e(
       {
@@ -124,6 +131,7 @@ Dir.mktmpdir("deploy-selftest-") do |dir|
         "GIT_LOG" => log_path,
         "SCENARIO" => scenario,
         "DEPLOY_TARGET" => target,
+        "DEPLOY_BRANCH" => branch,
         "DEPLOY_REVISION" => sha
       },
       "bash", "-euo", "pipefail", "-c", script
@@ -132,21 +140,23 @@ Dir.mktmpdir("deploy-selftest-") do |dir|
     raise "#{scenario}: unexpected status\n#{output}" unless status.success? == success
     raise "#{scenario}: missing error\n#{output}" if message && !output.include?(message)
 
-    if scenario == "fixed"
+    if scenario == "fixed" || scenario.start_with?("shared-")
       expected = [
         "merge-base --is-ancestor #{revision} origin/master",
-        "checkout staging",
+        "checkout #{branch}",
         "merge-base --is-ancestor HEAD #{revision}",
         "merge --ff-only #{revision}",
         "rev-parse HEAD",
-        "push origin HEAD:refs/heads/staging"
+        "push origin HEAD:refs/heads/#{branch}"
       ]
       raise "Fixed revision command sequence changed: #{commands}" unless commands == expected
     elsif scenario.start_with?("legacy-")
-      source = target == "production" ? "staging" : "master"
-      expected = ["checkout #{target}", "merge origin/#{source}", "push"]
+      source = branch == "production" ? "staging" : "master"
+      expected = ["checkout #{branch}", "merge origin/#{source}", "push"]
       raise "#{scenario}: legacy behavior changed" unless commands == expected
-    elsif scenario != "push-failure"
+    elsif scenario == "push-same"
+      raise "Concurrent push was not verified" unless commands.last(2) == ["fetch origin refs/heads/#{branch}", "rev-parse FETCH_HEAD"]
+    elsif !%w[push-failure fetch-failure].include?(scenario)
       raise "#{scenario}: pushed despite failed validation" if commands.any? { |cmd| cmd.start_with?("push") }
     end
     puts "#{scenario}: OK"

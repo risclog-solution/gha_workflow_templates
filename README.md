@@ -83,8 +83,22 @@ The new secret is required.
 With this input, the target branch must be an ancestor of that commit.
 The workflow fast-forwards it to exactly the requested revision, checks the
 result, and pushes without force before running batou on the target branch.
-Invalid revisions, diverged or newer target branches, and rejected pushes
-fail the deployment. Existing batou environment branch guards remain active.
+Invalid revisions and diverged or newer target branches fail the deployment.
+Rejected pushes also fail unless the remote branch already equals the requested
+revision, as described below. Existing batou environment branch guards remain
+active.
+
+The optional `branch` input selects the deployment Git branch independently
+of `target`, which remains the batou environment name. It defaults to `target`
+for existing callers. For example, `target: volkswagenstaging` with
+`branch: staging` deploys the Volkswagen environment from the shared staging
+branch. Its environment configuration must specify `branch = staging`.
+In legacy mode, `branch: production` merges from staging as before.
+
+Parallel environments can advance a shared branch to the same fixed revision.
+If a push fails, the workflow fetches that branch and only proceeds when its
+remote SHA already equals the requested revision. Different remote revisions
+or failed fetches stop the deployment.
 
 For a multi-stage pipeline, select the deployment SHA once and pass the same
 value to every invocation:
