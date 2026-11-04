@@ -257,7 +257,18 @@ Fixtures used by the self-tests:
 - [`.github/fixtures/appenv_stub.sh`](.github/fixtures/appenv_stub.sh)
 - [`.github/fixtures/coverage_sample.py`](.github/fixtures/coverage_sample.py)
 
+The [actionlint configuration](.github/actionlint.yaml) declares `nixos` as a
+custom self-hosted runner label. Add any new custom labels there so workflow
+linting continues to validate runner selection.
+
 ### Local Testing
+
+Lint all workflows with the same actionlint version used in CI (`v1.6.25`)
+and ShellCheck installed:
+
+```bash
+actionlint
+```
 
 Syntax-check the resolver:
 
