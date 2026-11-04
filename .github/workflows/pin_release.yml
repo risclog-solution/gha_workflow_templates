@@ -58,6 +58,8 @@ jobs:
           exit 1
         fi
         command="gh workflow run deploy-release.yml --repo risclog-solution/$DEPLOY_REPOSITORY --ref master -f revision=$DEPLOY_REVISION"
+        # Markdown backticks are literal.
+        # shellcheck disable=SC2016
         message=$(printf '%s %s pinned in %s.\n\nStart deployment:\n```\n%s\n```\n\nPinning commit: %s/risclog-solution/%s/commit/%s' "$PACKAGE" "$VERSION" "$DEPLOY_REPOSITORY" "$command" "$GITHUB_SERVER_URL" "$DEPLOY_REPOSITORY" "$DEPLOY_REVISION")
         payload=$(jq -n --arg text "$message" '{text: $text}')
         curl --fail --silent --show-error \
