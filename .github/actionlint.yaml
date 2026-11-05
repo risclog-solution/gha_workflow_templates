@@ -1,0 +1,8 @@
+self-hosted-runner:
+  labels:
+    - nixos
+
+paths:
+  .github/workflows/cleanup.yml:
+    ignore:
+      - 'constant expression "false" in condition'

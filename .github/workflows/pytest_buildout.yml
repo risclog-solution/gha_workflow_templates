@@ -112,7 +112,7 @@ jobs:
           EOF
           sudo mv policy.xml /etc/ImageMagick-6/policy.xml
     - name: Cached eggs
-      uses: actions/cache@v3
+      uses: actions/cache@v6
       if: ${{ inputs.cache_hashfile }}
       with:
         path: ~/.eggs
@@ -120,7 +120,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-tests-eggs-v1-
     - name: Cached sdists
-      uses: actions/cache@v3
+      uses: actions/cache@v6
       if: ${{ inputs.cache_hashfile }}
       with:
         path: ~/.download-cache
