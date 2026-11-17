@@ -96,7 +96,7 @@ jobs:
           </policymap>
 
           EOF
-          sudo mv policy.xml /etc/ImageMagick-6/policy.xml
+          sudo tee /etc/ImageMagick-*/policy.xml < policy.xml > /dev/null
     - name: Install the latest version of uv
       uses: astral-sh/setup-uv@v5
     - name: Install python packages
