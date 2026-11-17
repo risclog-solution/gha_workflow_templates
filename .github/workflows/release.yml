@@ -25,6 +25,8 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       version: ${{ steps.pin.outputs.version }}
     steps:
@@ -54,6 +56,12 @@ jobs:
       run: |
         VERSION=$(git tag | tail -1)
         echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+    - name: Create GitHub release
+      run: gh release create "$VERSION" --verify-tag --title "$VERSION" --generate-notes
+      env:
+        VERSION: ${{ steps.pin.outputs.version }}
+        GH_TOKEN: ${{ secrets.BUILD_SVC_PAT || github.token }}
 
     - name: Install uv
       if: hashFiles('uv.lock')
